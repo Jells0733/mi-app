@@ -12,8 +12,10 @@ module.exports = {
   devServer: {
     historyApiFallback: true, // permite navegación en rutas como /admin
     port: 3000,
-    open: true, // abre navegador automáticamente (opcional)
-    hot: true, // recarga en caliente (opcional)
+    host: '0.0.0.0', // permite acceso desde fuera del contenedor
+    open: false, // no abre navegador automáticamente en Docker
+    hot: true, // recarga en caliente
+    allowedHosts: 'all', // permite acceso desde cualquier host
   },
   module: {
     rules: [

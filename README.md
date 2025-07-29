@@ -2,12 +2,133 @@
 
 ## Descripción Técnica
 
-Sistema full-stack con:
+Sistema full-stack moderno con:
 - **Backend**: Node.js + Express + PostgreSQL
-- **Frontend**: React + Webpack
+- **Frontend**: React + Webpack + Babel
 - **Base de Datos**: PostgreSQL
 - **Autenticación**: JWT
 - **Contenedores**: Docker + Docker Compose
+- **Testing**: Jest (Unitarios e Integración)
+
+## Prerrequisitos
+
+- Docker y Docker Compose instalados
+- Node.js 18+ (para desarrollo local)
+- Git
+
+## Ejecución con Docker (Recomendado)
+
+### Opción 1: Ejecutar toda la aplicación
+```bash
+# Clonar el repositorio
+git clone <tu-repositorio>
+cd mi-app
+
+# Ejecutar toda la aplicación
+docker-compose up -d
+
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Detener la aplicación
+docker-compose down
+```
+
+### Opción 2: Ejecutar servicios individuales
+```bash
+# Solo frontend
+docker-compose build frontend
+docker-compose up frontend
+
+# Solo backend
+docker-compose build backend
+docker-compose up backend
+
+# Solo base de datos
+docker-compose up db
+```
+
+### Opción 3: Usando scripts de construcción
+```bash
+# En Windows (PowerShell)
+.\build-frontend.ps1
+
+# En Linux/Mac
+chmod +x build-frontend.sh
+./build-frontend.sh
+```
+
+##  Desarrollo Local
+
+### Backend
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Base de Datos
+```bash
+# PostgreSQL debe estar corriendo en puerto 5432
+# Usuario: postgres
+# Password: Ntc0394**
+# Base de datos: miapp
+```
+
+## URLs del Sistema
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:4000
+- **Base de Datos**: localhost:5432
+- **PgAdmin**: http://localhost:5050
+  - Email: jorge.llamas@local.dev
+  - Password: Ntc0394**
+
+##  Solución de Problemas
+
+### Error: "webpack: not found"
+Este error ocurre cuando las dependencias no se instalan correctamente en el contenedor.
+
+**Solución:**
+```bash
+# Limpiar contenedores e imágenes
+docker-compose down
+docker rmi mi-app_frontend
+
+# Reconstruir sin cache
+docker-compose build --no-cache frontend
+
+# Ejecutar
+docker-compose up frontend
+```
+
+### Error de permisos en Windows
+Si tienes problemas de permisos en Windows, ejecuta PowerShell como administrador.
+
+### Puerto 3000 ocupado
+Si el puerto 3000 está ocupado, puedes cambiar el puerto en `docker-compose.yml`:
+```yaml
+ports:
+  - "3001:3000"  # Cambia 3001 por el puerto que prefieras
+```
+
+### Problemas de conectividad entre contenedores
+```bash
+# Verificar que todos los contenedores estén ejecutándose
+docker ps
+
+# Ver logs de un contenedor específico
+docker logs mi-app-frontend-1
+docker logs mi-app-backend-1
+docker logs mi-app-db-1
+```
 
 ## Estructura de Base de Datos
 
@@ -44,116 +165,6 @@ CREATE TABLE solicitudes (
   id_empleado INTEGER REFERENCES empleados(id) ON DELETE CASCADE
 );
 ```
-
-## Queries Básicas del Sistema
-
-### Usuarios
-```sql
--- Crear usuario
-INSERT INTO users (username, email, password, role) 
-VALUES ($1, $2, $3, $4) RETURNING *;
-
--- Obtener usuario por email
-SELECT * FROM users WHERE email = $1;
-```
-
-### Empleados
-```sql
--- Obtener todos los empleados
-SELECT * FROM empleados ORDER BY id;
-
--- Crear empleado
-INSERT INTO empleados (nombre, fecha_ingreso, salario, id_usuario)
-VALUES ($1, $2, $3, $4) RETURNING *;
-
--- Obtener empleado por ID
-SELECT * FROM empleados WHERE id = $1;
-
--- Obtener empleado por id_usuario
-SELECT * FROM empleados WHERE id_usuario = $1;
-
--- Actualizar empleado
-UPDATE empleados 
-SET nombre = $1, fecha_ingreso = $2, salario = $3
-WHERE id = $4 RETURNING *;
-
--- Eliminar empleado
-DELETE FROM empleados WHERE id = $1 RETURNING *;
-```
-
-### Solicitudes
-```sql
--- Obtener todas las solicitudes con datos del empleado
-SELECT 
-  s.id, s.codigo, s.descripcion, s.resumen, s.id_empleado,
-  e.nombre AS empleado_nombre
-FROM solicitudes s
-LEFT JOIN empleados e ON s.id_empleado = e.id
-ORDER BY s.id;
-
--- Crear solicitud
-INSERT INTO solicitudes (codigo, descripcion, resumen, id_empleado)
-VALUES ($1, $2, $3, $4) RETURNING *;
-
--- Obtener solicitudes por empleado
-SELECT * FROM solicitudes WHERE id_empleado = $1 ORDER BY id;
-
--- Actualizar solicitud
-UPDATE solicitudes
-SET codigo = $1, descripcion = $2, resumen = $3, id_empleado = $4
-WHERE id = $5 RETURNING *;
-
--- Eliminar solicitud
-DELETE FROM solicitudes WHERE id = $1;
-```
-
-## Comandos de Arranque
-
-### Opción 1: Docker Compose (Recomendado)
-```bash
-# Arrancar todo el sistema
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Detener sistema
-docker-compose down
-
-# Reconstruir contenedores
-docker-compose up --build -d
-```
-
-### Opción 2: Desarrollo Local
-
-#### Backend
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-#### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-#### Base de Datos
-```bash
-# PostgreSQL debe estar corriendo en puerto 5432
-# Usuario: postgres
-# Password: Ntc0394**
-# Base de datos: miapp
-```
-
-## Puertos del Sistema
-
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:4000
-- **Base de Datos**: localhost:5432
-- **PgAdmin**: http://localhost:5050
 
 ## Endpoints API
 
@@ -201,7 +212,7 @@ docker-compose run --rm test-runner npm run test:integration
 ## Variables de Entorno
 
 ### Backend (.env)
-```
+```env
 NODE_ENV=development
 DB_HOST=localhost
 DB_PORT=5432
@@ -209,6 +220,38 @@ DB_USER=postgres
 DB_PASSWORD=Ntc0394**
 DB_NAME=miapp
 JWT_SECRET=tu_jwt_secret_aqui
+```
+
+### Frontend (.env)
+```env
+REACT_APP_API_URL=http://localhost:4000/api
+```
+
+## Estructura del Proyecto
+
+```
+mi-app/
+├── backend/                 # API Node.js + Express
+│   ├── src/
+│   │   ├── controllers/     # Controladores de la API
+│   │   ├── models/         # Modelos de datos
+│   │   ├── routes/         # Rutas de la API
+│   │   ├── middlewares/    # Middlewares (auth, etc.)
+│   │   └── config/         # Configuración de BD
+│   ├── tests/              # Tests unitarios e integración
+│   └── Dockerfile          # Configuración Docker backend
+├── frontend/               # Aplicación React
+│   ├── src/
+│   │   ├── components/     # Componentes React
+│   │   ├── pages/         # Páginas de la aplicación
+│   │   ├── services/      # Servicios API
+│   │   ├── context/       # Contexto de autenticación
+│   │   └── styles/        # Estilos CSS
+│   ├── webpack.config.js  # Configuración Webpack
+│   ├── .babelrc          # Configuración Babel
+│   └── Dockerfile        # Configuración Docker frontend
+├── docker-compose.yml     # Orquestación de contenedores
+└── README.md             # Este archivo
 ```
 
 ## Funcionalidades del Sistema
@@ -230,8 +273,65 @@ JWT_SECRET=tu_jwt_secret_aqui
 - Validación de datos
 - Manejo de errores
 - Tests unitarios e integración
-- Contenedores Docker
+- Contenedores Docker optimizados
 - Base de datos PostgreSQL
 - API RESTful
 - Frontend React con routing
+- Hot reload en desarrollo
+- Configuración Webpack optimizada
+
+##  Comandos Útiles
+
+### Docker
+```bash
+# Ver logs de todos los servicios
+docker-compose logs -f
+
+# Ver logs de un servicio específico
+docker-compose logs -f frontend
+docker-compose logs -f backend
+
+# Reconstruir un servicio específico
+docker-compose build --no-cache frontend
+
+# Ejecutar comandos dentro de un contenedor
+docker-compose exec frontend sh
+docker-compose exec backend sh
+
+# Limpiar todo (contenedores, imágenes, volúmenes)
+docker-compose down -v --rmi all
+```
+
+### Desarrollo
+```bash
+# Instalar dependencias en ambos proyectos
+cd backend && npm install && cd ../frontend && npm install
+
+# Ejecutar tests en ambos proyectos
+cd backend && npm test && cd ../frontend && npm test
+
+# Verificar puertos en uso
+netstat -ano | findstr :3000
+netstat -ano | findstr :4000
+```
+
+## Notas de Desarrollo
+
+- El frontend usa Webpack 5 con configuración optimizada para desarrollo
+- El backend incluye tests unitarios y de integración completos
+- La base de datos se inicializa automáticamente con Docker
+- Todos los servicios están configurados para hot reload en desarrollo
+- El sistema incluye PgAdmin para gestión visual de la base de datos
+
+##  Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+##  Licencia
+
+Este proyecto está bajo la Licencia ISC.
 
