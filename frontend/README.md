@@ -1,6 +1,6 @@
 # Frontend - Mi App
 
-## 🚀 Ejecución con Docker
+## Ejecución con Docker
 
 ### Opción 1: Usando docker-compose (Recomendado)
 ```bash
@@ -31,7 +31,7 @@ docker build -t mi-app-frontend .
 docker run -p 3000:3000 -v $(pwd):/app mi-app-frontend
 ```
 
-## 🔧 Desarrollo Local
+## Desarrollo Local
 
 ### Prerrequisitos
 - Node.js 18 o superior
@@ -47,7 +47,7 @@ npm install
 npm run dev
 ```
 
-## 🐛 Solución de Problemas
+## Solución de Problemas
 
 ### Error: "webpack: not found"
 Este error ocurre cuando las dependencias no se instalan correctamente en el contenedor.
@@ -79,7 +79,7 @@ ports:
   - "3001:3000"  # Cambia 3001 por el puerto que prefieras
 ```
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 ```
 frontend/
 ├── src/           # Código fuente React
@@ -90,7 +90,7 @@ frontend/
 └── Dockerfile     # Configuración de Docker
 ```
 
-## 🔗 URLs
+##  URLs
 - Frontend: http://localhost:3000
 - Backend: http://localhost:4000
 - Base de datos: localhost:5432
